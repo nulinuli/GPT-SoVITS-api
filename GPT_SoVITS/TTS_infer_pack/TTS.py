@@ -671,7 +671,7 @@ class TTS:
         self.stop_flag:bool = False
         text:str = inputs.get("text", "")
         text_lang:str = inputs.get("text_lang", "")
-        ref_audio_path:str = inputs.get("ref_audio_path", "")
+        ref_audio_url:str = inputs.get("ref_audio_url", "")
         aux_ref_audio_paths:list = inputs.get("aux_ref_audio_paths", [])
         prompt_text:str = inputs.get("prompt_text", "")
         prompt_lang:str = inputs.get("prompt_lang", "")
@@ -724,16 +724,16 @@ class TTS:
         if not no_prompt_text:
             assert prompt_lang in self.configs.languages
 
-        if ref_audio_path in [None, ""] and \
+        if ref_audio_url in [None, ""] and \
             ((self.prompt_cache["prompt_semantic"] is None) or (self.prompt_cache["refer_spec"] in [None, []])):
-            raise ValueError("ref_audio_path cannot be empty, when the reference audio is not set using set_ref_audio()")
+            raise ValueError("ref_audio_url cannot be empty, when the reference audio is not set using set_ref_audio()")
 
         ###### setting reference audio and prompt text preprocessing ########
         t0 = ttime()
-        if (ref_audio_path is not None) and (ref_audio_path != self.prompt_cache["ref_audio_path"]):
-            if not os.path.exists(ref_audio_path):
-                raise ValueError(f"{ref_audio_path} not exists")
-            self.set_ref_audio(ref_audio_path)
+        if (ref_audio_url is not None) and (ref_audio_url != self.prompt_cache["ref_audio_path"]):
+            if not os.path.exists(ref_audio_url):
+                raise ValueError(f"{ref_audio_url} not exists")
+            self.set_ref_audio(ref_audio_url)
             
         aux_ref_audio_paths = aux_ref_audio_paths if aux_ref_audio_paths is not None else []
         paths = set(aux_ref_audio_paths)&set(self.prompt_cache["aux_ref_audio_paths"])

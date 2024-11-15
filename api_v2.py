@@ -126,8 +126,8 @@ cut_method_names = get_cut_method_names()
 
 parser = argparse.ArgumentParser(description="GPT-SoVITS api")
 parser.add_argument("-c", "--tts_config", type=str, default="GPT_SoVITS/configs/tts_infer.yaml", help="tts_infer路径")
-parser.add_argument("-a", "--bind_addr", type=str, default="127.0.0.1", help="default: 127.0.0.1")
-parser.add_argument("-p", "--port", type=int, default="9880", help="default: 9880")
+parser.add_argument("-a", "--bind_addr", type=str, default="0.0.0.0", help="default: 127.0.0.1")
+parser.add_argument("-p", "--port", type=int, default="8081", help="default: 9880")
 args = parser.parse_args()
 config_path = args.tts_config
 # device = args.device
@@ -143,6 +143,7 @@ print(tts_config)
 tts_pipeline = TTS(tts_config)
 
 APP = FastAPI()
+
 class TTS_Request(BaseModel):
     text: str = None
     text_lang: str = None
@@ -246,8 +247,8 @@ def check_params(req:dict):
     prompt_lang:str = req.get("prompt_lang", "")
     text_split_method:str = req.get("text_split_method", "cut5")
 
-    if ref_audio_path in [None, ""]:
-        return JSONResponse(status_code=400, content={"message": "ref_audio_path is required"})
+ #   if ref_audio_path in [None, ""]:
+ #       return JSONResponse(status_code=400, content={"message": "ref_audio_path is required"})
     if text in [None, ""]:
         return JSONResponse(status_code=400, content={"message": "text is required"})
     if (text_lang in [None, ""]) :
@@ -330,11 +331,6 @@ async def tts_handle(req:dict):
             return Response(audio_data, media_type=f"audio/{media_type}")
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": f"tts failed", "Exception": str(e)})
-    
-
-
-
-
 
 @APP.get("/control")
 async def control(command: str = None):
@@ -407,23 +403,23 @@ async def set_refer_aduio(refer_audio_path: str = None):
     return JSONResponse(status_code=200, content={"message": "success"})
 
 
-# @APP.post("/set_refer_audio")
-# async def set_refer_aduio_post(audio_file: UploadFile = File(...)):
-#     try:
-#         # 检查文件类型，确保是音频文件
-#         if not audio_file.content_type.startswith("audio/"):
-#             return JSONResponse(status_code=400, content={"message": "file type is not supported"})
+@APP.post("/set_refer_audio")
+async def set_refer_aduio_post(audio_file: UploadFile = File(...)):
+    try:
+         # 检查文件类型，确保是音频文件
+        if not audio_file.content_type.startswith("audio/"):
+             return JSONResponse(status_code=400, content={"message": "file type is not supported"})
         
-#         os.makedirs("uploaded_audio", exist_ok=True)
-#         save_path = os.path.join("uploaded_audio", audio_file.filename)
-#         # 保存音频文件到服务器上的一个目录
-#         with open(save_path , "wb") as buffer:
-#             buffer.write(await audio_file.read())
-            
-#         tts_pipeline.set_ref_audio(save_path)
-#     except Exception as e:
-#         return JSONResponse(status_code=400, content={"message": f"set refer audio failed", "Exception": str(e)})
-#     return JSONResponse(status_code=200, content={"message": "success"})
+        os.makedirs("uploaded_audio", exist_ok=True)
+        save_path = os.path.join("uploaded_audio", audio_file.filename)
+        # 保存音频文件到服务器上的一个目录
+        with open(save_path , "wb") as buffer:
+            buffer.write(await audio_file.read())
+           
+        tts_pipeline.set_ref_audio(save_path)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": f"set refer audio failed", "Exception": str(e)})
+    return JSONResponse(status_code=200, content={"message": "success"})
 
 @APP.get("/set_gpt_weights")
 async def set_gpt_weights(weights_path: str = None):

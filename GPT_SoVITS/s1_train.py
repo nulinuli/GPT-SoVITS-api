@@ -83,11 +83,12 @@ class my_model_ckpt(ModelCheckpoint):
                     if(os.environ.get("LOCAL_RANK","0")=="0"):
                         my_save(
                             to_save_od,
-                            "%s/%s-e%s.ckpt"
+                            #"%s/%s-e%s.ckpt"
+                            "%s/%s.ckpt"
                             % (
                                 self.half_weights_save_dir,
                                 self.exp_name,
-                                trainer.current_epoch + 1,
+                                #trainer.current_epoch + 1,
                             ),
                         )
             self._save_last_checkpoint(trainer, monitor_candidates)

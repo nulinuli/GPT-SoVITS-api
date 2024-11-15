@@ -498,7 +498,8 @@ def train_and_evaluate(
                     epoch,
                     savee(
                         ckpt,
-                        hps.name + "_e%s_s%s" % (epoch, global_step),
+                        #hps.name + "_e%s_s%s" % (epoch, global_step),
+                        hps.name,
                         epoch,
                         global_step,
                         hps,
